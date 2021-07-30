@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 public class VideoPlayer {
 
   private final VideoLibrary videoLibrary;
   private boolean isPlaying = false;
+  private boolean isPaused = false;
   private String currentVideo = "";
   private String prevVideo = "";
 
@@ -20,6 +22,9 @@ public class VideoPlayer {
     System.out.printf("%s videos in the library%n", videoLibrary.getVideos().size());
   }
 
+  /**
+   * Shows all available videos in library
+   */
   public void showAllVideos() {
     System.out.println("Here's a list of all available videos:");
     List<Video> sortedVideoLibrary = videoLibrary.getVideos();
@@ -30,6 +35,12 @@ public class VideoPlayer {
     }
   }
 
+  /**
+   * Play the specified video. If a video is currently playing, display a note that this video will be stopped, even
+   * if the same video is already playing. If the video doesn’t exist, display a warning message
+   * and don’t stop the currently playing video).
+   * @param videoId
+   */
   public void playVideo(String videoId) {
 
     currentVideo = videoId;
@@ -50,21 +61,73 @@ public class VideoPlayer {
     }
   }
 
-
+  /**
+   * Stop the current playing video. If no video is currently playing, display a warning message “Cannot stop video:
+   * No video is currently playing” and do nothing.
+   */
   public void stopVideo() {
-    System.out.println("stopVideo needs implementation");
+    if(isPlaying) {
+      System.out.println("Stopping video: " + videoLibrary.getVideo(currentVideo).getTitle());
+      isPlaying = false;
+      isPaused = false;
+    }
+    else if(!isPlaying) {
+      System.out.println("Cannot stop video: No video is currently playing");
+    }
   }
 
+  /**
+   * Play a random video. If a video is currently playing, display a note that this video will be stopped,
+   * even if the same video is already playing.
+   */
   public void playRandomVideo() {
-    System.out.println("playRandomVideo needs implementation");
+    Random rand = new Random();
+    List<Video> availableVideos = videoLibrary.getVideos();
+    Video randomVideo = availableVideos.get(rand.nextInt(availableVideos.size()));
+
+    if(randomVideo != null) {
+      playVideo(randomVideo.getVideoId());
+    }
   }
 
+  /**
+   * Pause the current playing video. If a video is already paused, display a warning message and do nothing. Equally,
+   * If no video is currently playing, display a warning message and do nothing.
+   */
   public void pauseVideo() {
-    System.out.println("pauseVideo needs implementation");
+    if (isPlaying) {
+      if (isPaused) {
+        System.out.println("Video already paused: " + getCurrentVideoTitle());
+      } else if (!isPaused) {
+        System.out.println("Pausing video: " + getCurrentVideoTitle());
+        isPaused = true;
+      }
+    }
+    else if(!isPlaying) {
+      System.out.println("Cannot pause video: No video is currently playing");
+    }
   }
 
+  /**
+   * My own method to return video title from ID faster
+   * @return
+   */
+  private String getCurrentVideoTitle() {
+    return videoLibrary.getVideo(currentVideo).getTitle();
+  }
+
+  /**
+   * Continues a currently paused video. If the currently playing video is not paused,
+   * display a warning message and do nothing. If no video is playing at all, also display a warning message and do nothing.
+   */
   public void continueVideo() {
-    System.out.println("continueVideo needs implementation");
+    if(isPaused) {
+      System.out.println("Playing video: " + currentVideo);
+      isPaused = false;
+    }
+    else if(!isPaused) {
+      System.out.println("Cannot continue video: Video is not paused");
+    }
   }
 
   public void showPlaying() {
