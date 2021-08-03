@@ -13,6 +13,7 @@ public class VideoPlayer {
   private boolean isPaused = false;
   private String currentVideo = "";
   private String prevVideo = "";
+  private String showPlayingText = "";
 
   public VideoPlayer() {
     this.videoLibrary = new VideoLibrary();
@@ -31,7 +32,8 @@ public class VideoPlayer {
     sortedVideoLibrary.sort(Comparator.comparing(Video::getTitle));
 
     for (Video vid : sortedVideoLibrary) {
-      System.out.println(vid.getTitle() + " (" + vid.getVideoId()+ ") " + vid.getTags());
+      List<String> videoTags = vid.getTags();
+      System.out.println(vid.getTitle() + " (" + vid.getVideoId()+ ") " + videoTags.toString().replace(",",""));
     }
   }
 
@@ -58,6 +60,7 @@ public class VideoPlayer {
         isPlaying = true;
       }
       prevVideo = currentVideo;
+      isPaused = false;
     }
   }
 
@@ -121,17 +124,41 @@ public class VideoPlayer {
    * display a warning message and do nothing. If no video is playing at all, also display a warning message and do nothing.
    */
   public void continueVideo() {
-    if(isPaused) {
-      System.out.println("Playing video: " + currentVideo);
-      isPaused = false;
+    if(!isPlaying) {
+      System.out.println("Cannot continue video: No video is currently playing");
     }
-    else if(!isPaused) {
-      System.out.println("Cannot continue video: Video is not paused");
+    else {
+      if (isPaused) {
+        System.out.println("Continuing video: " + getCurrentVideoTitle());
+        isPaused = false;
+      } else if (!isPaused) {
+        System.out.println("Cannot continue video: Video is not paused");
+      }
     }
   }
 
+  /**
+   * Displays the title, video_id, video tags and paused status of the video that is currently playing.
+   * If no video is currently playing, display a message.
+   */
   public void showPlaying() {
-    System.out.println("showPlaying needs implementation");
+    showPlayingText = "";
+    String showPausedText = "";
+    if(isPaused) {
+      showPausedText = " - PAUSED";
+    }
+    else {
+      showPausedText = "";
+    }
+    if(isPlaying) {
+      showPlayingText += "Currently playing: " + getCurrentVideoTitle() + " (" + videoLibrary.getVideo(currentVideo).getVideoId()
+      + ") " + videoLibrary.getVideo(currentVideo).getTags().toString().replace(",","") + showPausedText;
+    }
+    else {
+      System.out.println("No video is currently playing");
+    }
+
+    System.out.println(showPlayingText);
   }
 
   public void createPlaylist(String playlistName) {
