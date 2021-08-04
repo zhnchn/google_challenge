@@ -1,10 +1,6 @@
 package com.google;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class VideoPlayer {
 
@@ -14,9 +10,11 @@ public class VideoPlayer {
   private String currentVideo = "";
   private String prevVideo = "";
   private String showPlayingText = "";
+  private Map<String, VideoPlaylist> userPlaylist;
 
   public VideoPlayer() {
     this.videoLibrary = new VideoLibrary();
+    this.userPlaylist = new HashMap<>();
   }
 
   public void numberOfVideos() {
@@ -161,12 +159,43 @@ public class VideoPlayer {
     System.out.println(showPlayingText);
   }
 
+  /**
+   *
+   * @param playlistName
+   */
   public void createPlaylist(String playlistName) {
-    System.out.println("createPlaylist needs implementation");
+
+    if(userPlaylist.containsKey(playlistName.toLowerCase())) {
+      System.out.println("Cannot create playlist: A playlist with the same name already exists");
+    }
+    else {
+      VideoPlaylist videoPlaylist = new VideoPlaylist(playlistName);
+      userPlaylist.put(playlistName.toLowerCase(), videoPlaylist);
+      System.out.println("Successfully created new playlist: " + playlistName);
+    }
   }
 
+  /**
+   *
+   * @param playlistName
+   * @param videoId
+   */
   public void addVideoToPlaylist(String playlistName, String videoId) {
-    System.out.println("addVideoToPlaylist needs implementation");
+    if(userPlaylist.containsKey(playlistName.toLowerCase())) {
+      if(videoLibrary.getVideo(videoId) == null){
+        System.out.println("Cannot add video to " + playlistName + ": Video does not exist");
+      }
+      else if(userPlaylist.get(playlistName.toLowerCase()).videoInPlaylist.containsKey(videoId)) {
+        System.out.println("Cannot add video to " + playlistName + ": Video already added");
+      }
+      else {
+        userPlaylist.get(playlistName.toLowerCase()).videoInPlaylist.put(videoId, videoLibrary.getVideo(videoId));
+        System.out.println("Added video to " + playlistName + ": " + videoLibrary.getVideo(videoId).getTitle());
+      }
+    }
+    else {
+      System.out.println("Cannot add video to " + playlistName + ": Playlist does not exist");
+    }
   }
 
   public void showAllPlaylists() {
