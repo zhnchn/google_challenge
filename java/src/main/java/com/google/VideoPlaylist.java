@@ -15,4 +15,13 @@ class VideoPlaylist {
         this.videoInPlaylist = new LinkedHashMap<>();
         this.nameOfVideo = videoName;
     }
+
+    public boolean checkVideoExist(String videoID) {
+        for (Video video : videoInPlaylist.values()) {
+            if(video.getVideoId().equals(videoID)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
