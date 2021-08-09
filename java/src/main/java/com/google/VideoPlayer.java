@@ -1,6 +1,7 @@
 package com.google;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class VideoPlayer {
 
@@ -159,10 +160,6 @@ public class VideoPlayer {
     System.out.println(showPlayingText);
   }
 
-  /**
-   *
-   * @param playlistName
-   */
   public void createPlaylist(String playlistName) {
 
     if(userPlaylist.containsKey(playlistName.toLowerCase())) {
@@ -175,11 +172,6 @@ public class VideoPlayer {
     }
   }
 
-  /**
-   *
-   * @param playlistName
-   * @param videoId
-   */
   public void addVideoToPlaylist(String playlistName, String videoId) {
     if(userPlaylist.containsKey(playlistName.toLowerCase())) {
       if(videoLibrary.getVideo(videoId) == null){
@@ -198,9 +190,6 @@ public class VideoPlayer {
     }
   }
 
-  /**
-   * Not sure how to print exact name and sort it
-   */
   public void showAllPlaylists() {
     if(userPlaylist.isEmpty()) {
       System.out.println("No playlists exist yet");
@@ -214,10 +203,6 @@ public class VideoPlayer {
     }
   }
 
-  /**
-   * Not sure how to get nicer output
-   * @param playlistName
-   */
   public void showPlaylist(String playlistName) {
     if (!userPlaylist.containsKey(playlistName.toLowerCase())) {
       System.out.println("Cannot show playlist " + playlistName + ": Playlist does not exist");
@@ -228,15 +213,11 @@ public class VideoPlayer {
         return;
       }
       System.out.println(userPlaylist.get(playlistName.toLowerCase()).videoInPlaylist.toString());
+
     }
   }
 
 
-  /**
-   *
-   * @param playlistName
-   * @param videoId
-   */
   public void removeFromPlaylist(String playlistName, String videoId) {
     if (!userPlaylist.containsKey(playlistName.toLowerCase())) {
       System.out.println("Cannot remove video from " + playlistName + ": Playlist does not exist");
@@ -268,10 +249,6 @@ public class VideoPlayer {
     }
   }
 
-  /**
-   *
-   * @param playlistName
-   */
   public void deletePlaylist(String playlistName) {
     if (!userPlaylist.containsKey(playlistName.toLowerCase())) {
       System.out.println("Cannot delete playlist " + playlistName + ": Playlist does not exist");
@@ -280,12 +257,46 @@ public class VideoPlayer {
       System.out.println("Deleted playlist: " + playlistName);
     }
   }
+
+  public void displaySearchResults(String searchTerm, List<Video> results) {
+    if(results.size()==0) {
+      System.out.println("No search results for " + searchTerm);
+    } else {
+      System.out.println("Here are the results for " + searchTerm + ":");
+      int count = 1;
+      for(Video v : results) {
+        System.out.println(count + ") " + v);
+        count++;
+      }
+      System.out.println("Would you like to play any of the above? If yes, specify the number of the video. \n"
+              + "If your answer is not a valid number, we will assume it's a no.");
+      var scanner = new Scanner(System.in);
+      if(scanner.hasNextInt()) {
+        var option = scanner.nextInt();
+        if(results.size()>=option) {
+          Video videoToPlay = results.get(option-1);
+          playVideo(videoToPlay.getVideoId());
+        }
+      }
+    }
+  }
+
   public void searchVideos(String searchTerm) {
-    System.out.println("searchVideos needs implementation");
+    List<Video> results = videoLibrary.getVideos().stream()
+            .filter(v -> v.getTitle().toLowerCase(Locale.ROOT).contains(searchTerm.toLowerCase(Locale.ROOT)))
+            .sorted(Comparator.comparing(Video::getTitle))
+            .collect(Collectors.toList());
+
+    displaySearchResults(searchTerm, results);
   }
 
   public void searchVideosWithTag(String videoTag) {
-    System.out.println("searchVideosWithTag needs implementation");
+    List<Video> results = videoLibrary.getVideos().stream()
+            .filter(v -> v.getTags().toString().toLowerCase(Locale.ROOT).contains(videoTag.toLowerCase(Locale.ROOT)))
+            .sorted(Comparator.comparing(Video::getTitle))
+            .collect(Collectors.toList());
+
+    displaySearchResults(videoTag, results);
   }
 
   public void flagVideo(String videoId) {
